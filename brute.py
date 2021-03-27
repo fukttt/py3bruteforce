@@ -9,5 +9,7 @@ from mechanic.ivi import Brute
 
 if __name__ == '__main__':
     b = Brute()
-
-    print(b.mult())
+    print("Project name is : " + b.projectFullName)
+    print("Project description is : "+ b.description)
+    print("Threads count : " + str(b.thread_count))
+    b.mult()

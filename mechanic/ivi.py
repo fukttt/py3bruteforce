@@ -20,7 +20,7 @@ class Brute(object):
         self.error = 0
         self.captcha = 0
         self.running = True
-        self.thread_count = 100
+        self.thread_count = 150
         self.lines = []
         self.lock = threading.Lock()
         self.count_list = 0
@@ -71,7 +71,7 @@ class Brute(object):
             for line in tags:
                 #print(bcolors.WARNING + '[+] Start scanning : ' + line.strip() + bcolors.ENDC)
                 self.lines.append(line.strip())
-            print('[+] Count of urls : ' + str(len(self.lines)))  
+            print('Count of accounts : ' + str(len(self.lines)))  
             self.count_list = len(self.lines) 
         self.startth()
 
