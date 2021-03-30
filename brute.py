@@ -5,15 +5,9 @@ import argparse
 import importlib
 from helpers.colors import bcolors
 
-#from mechanic.ivi import Brute
-#from mechanic.porn import Brute
-
 
 
 if __name__ == '__main__':
-
-   
-
     parser = argparse.ArgumentParser(description='How to use it :')
     parser.add_argument ('-p', '--proxy', help='example of use : python3 brute.py -p proxy.txt')
     parser.add_argument ('-b', '--base', help='example of use : python3 brute.py -b log.txt')

