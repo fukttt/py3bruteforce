@@ -2,10 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
-#LOG FILE
+# LOG FILE
 log.txt
-#PROXY FILE
+# PROXY FILE
 proxy.txt
+#VS CODE 
+.vscode
 # C extensions
 *.so
 

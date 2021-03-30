@@ -3,7 +3,7 @@ import sys, os
 import random
 import threading
 import time
-from mechanic.colors import bcolors
+from helpers.colors import bcolors
 from bs4 import BeautifulSoup as soup
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
