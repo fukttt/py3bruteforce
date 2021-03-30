@@ -67,5 +67,6 @@ if __name__ == '__main__':
     print("[+] Module name is : " + bcolors.UNDERLINE + b.projectFullName+ bcolors.ENDC)
     print("[+] Module description is : "+ bcolors.UNDERLINE+ b.description+ bcolors.ENDC)
     print("[+] Threads count : "+ bcolors.UNDERLINE + str(b.thread_count)+ bcolors.ENDC)
+    
     b.mult()
     
