@@ -36,8 +36,8 @@
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-              <li class="active"><a href="/">Dashboard</a></li>
-              <li><a href="/wiki">Wiki</a></li>
+              <li><a href="/">Dashboard</a></li>
+              <li class="active"><a href="/wiki">Wiki</a></li>
               <li><a href="/sysinfo">System info</a></li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Available modules <span class="caret"></span></a>
@@ -66,26 +66,11 @@
         <!-- Jumbotron -->
         <div class="jumbotron">
             <h1>Hello!</h1>
-            <p class="lead">This is a web-bruteforce app. This was made only for educational purposes! Be sure that you are running this stuff at your own risk!</p>
-            <p><a class="btn btn-lg btn-success" href="https://t.me/py3bruteforce" role="button">Get started today</a></p>
+            <p class="lead">For now i have not enough strength for making wiki. It will be soon, stay tuned!</p>
+            <p><a class="btn btn-lg btn-success" href="https://t.me/py3bruteforce" role="button">TG channel</a></p>
         </div>
 
-        <!-- Example row of columns -->
-        <div class="row">
-          {% for module in aval %}
-            <div class="col-lg-4">
-              <h2>{{module.projectName}} [id:{{module.projid}}] [th:{{module.thread_count}}] [PR:{{module.prlines|length}}] [PRT:{{module.proxytype}}]</h2>
-              <p>Started at {{module.today.strftime("%m-%d-%H.%M.%S")}}</p>
-              <p class="text-success">Good : {{module.good}}</p>
-              <p class="text-danger">Bad : {{module.bad}}
-              <p class="text-warning">Error : {{module.error}}
-              <p class="text-muted">ProjectError : {{module.projerror}}
-              <p class="text-info">Captcha : {{module.captcha}}</p>
-              <p><a class="btn btn-danger stopBtn"  data-proc="{{module.projid}}">Stop</a></p>
-            </div>
-          {% endfor %}
-            
-        </div>
+        
 
         <!-- Site footer -->
         <footer class="footer">
@@ -98,30 +83,7 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
-    <script>
-      document.querySelectorAll('.stopBtn').forEach(element => {
-        console.log(element);
-        element.addEventListener("click", (event) => {
-            let json = JSON.stringify({
-              method: "stop",
-              id: event.target.dataset.proc
-            });
-
-            let xhr = new XMLHttpRequest();
-            xhr.open('POST', '/api');
-            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            xhr.send(json);
-            xhr.onload = function () {
-              if (xhr.status != 200) {
-                alert(`Error ${xhr.status}: ${xhr.statusText}`);
-              } else {
-                document.location.reload();
-              }
-            };
-        });
-      });
-      
-    </script>
+    <
 </body>
 
 </html>

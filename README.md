@@ -7,7 +7,7 @@ python3 brute.py -m porn
 ```
 OR 
 ```
-python3 webserver.py
+flask run
 ```
 ##UPDATE 1.4
 Now you can run webserver and run modules in web-interface

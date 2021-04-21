@@ -1,6 +1,7 @@
 import os
 import importlib
 import sys
+import psutil
 from flask import Flask, request, render_template
 
 app = Flask(__name__)
@@ -22,9 +23,20 @@ def mod(module):
         modules = getModules(),
         files = getText())
 
+
+@app.route('/sysinfo')
+def sysinfp():
+    a = psutil
+    return render_template("sysinfo.html",
+        sys = a,
+        modules = getModules(),
+        files = getText())
+
 @app.route('/wiki')
 def wiki():
-    return '<h1>Will be soon</h1><a href="/"><- back</a>'
+    return render_template("wiki.html",
+        modules = getModules(),
+        files = getText())
 
 @app.route('/api', methods=['POST']) 
 def foo():
@@ -35,6 +47,7 @@ def foo():
             b.basename = data['base']
             b.proxyname = data['proxy']
             b.proxytype = data['proxytype']
+            b.proxylink = data['proxylink']
             b.projid = len(bruteList) + 1
             b.thread_count = int(data['threads'])
             b.timeout = (int(data['timeout']),int(data['timeout']))
@@ -47,7 +60,14 @@ def foo():
             return "Error while starting module " + data['module'] + " [" + str(e) + "] " + fname + " " + str(exc_tb.tb_lineno)
     if data['method'] == "get":
         return str(bruteList[int(data['id'])].good) + "/" + str(bruteList[int(data['id'])].bad) + "/" + str(bruteList[int(data['id'])].error) + "/" + str(bruteList[int(data['id'])].projerror) + "/" + str(bruteList[int(data['id'])].captcha)
-
+    if data['method'] == "stop":
+        for a in bruteList:
+            if a.projid == int(data['id']):
+                a.running = False
+                bruteList.remove(a)
+                return "Stopped succesfully!"
+            else:
+                return "Can't stop! Id didn't found!"
 
 
 
@@ -66,4 +86,4 @@ def getText():
             a.append(filename)
     return a
 
-app.run(debug = True)
+app.run(host="0.0.0.0", debug = True)

