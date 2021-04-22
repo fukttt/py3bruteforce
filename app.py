@@ -88,8 +88,8 @@ def foo():
                     it.basename + " | " + \
                     str(len(it.prlines)) + " | " + \
                     str(it.thread_count) + " | " + \
-                    it.proxytype + \
-                    str(it.projid) + " | " + "||"
+                    it.proxytype + " | " + \
+                    str(it.projid) + "||"
 
 
             return '{}'.format(proj)

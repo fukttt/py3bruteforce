@@ -129,7 +129,6 @@
               b.clear().draw();
               ab = xhr.response.split('||');
               ab.forEach((item) => {
-                console.log(item);
                 if (item != ""){
                   b.row.add( [
                     item.split(' | ')[0],
@@ -144,6 +143,7 @@
                     item.split(' | ')[7],
                     '<button class="btn btn-danger stopBtn" data-proc="'+item.split(' | ')[10]+'">STOP</button>'
                   ] ).draw( false );
+                  updateStopBtn();
                 }
                
               });
@@ -162,6 +162,7 @@
                   xhr.response.split(' | ')[7],
                   '<button class="btn btn-danger stopBtn" data-proc="'+xhr.response.split(' | ')[10]+'">STOP</button>'
               ] ).draw( false );
+              updateStopBtn();
             }
           }
           }
@@ -171,7 +172,7 @@
       function updateStopBtn(){
         //STOPBTN
         document.querySelectorAll('.stopBtn').forEach(element => {
-          console.log(element);
+          
           element.addEventListener("click", (event) => {
               let json = JSON.stringify({
                 method: "stop",
@@ -197,7 +198,7 @@
         var t = $('#table_id').DataTable();
         let timerId = setInterval(() => {
           updateTable(t);
-          updateStopBtn();
+          
         }, 500);
         
     } );
