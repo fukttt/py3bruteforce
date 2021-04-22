@@ -168,33 +168,36 @@
         };
       }
       
-      
-      //STOPBTN
-      document.querySelectorAll('.stopBtn').forEach(element => {
-        console.log(element);
-        element.addEventListener("click", (event) => {
-            let json = JSON.stringify({
-              method: "stop",
-              id: event.target.dataset.proc
-            });
+      function updateStopBtn(){
+        //STOPBTN
+        document.querySelectorAll('.stopBtn').forEach(element => {
+          console.log(element);
+          element.addEventListener("click", (event) => {
+              let json = JSON.stringify({
+                method: "stop",
+                id: event.target.dataset.proc
+              });
 
-            let xhr = new XMLHttpRequest();
-            xhr.open('POST', '/api');
-            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-            xhr.send(json);
-            xhr.onload = function () {
-              if (xhr.status != 200) {
-                alert(`Error ${xhr.status}: ${xhr.statusText}`);
-              } else {
-                document.location.reload();
-              }
-            };
+              let xhr = new XMLHttpRequest();
+              xhr.open('POST', '/api');
+              xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+              xhr.send(json);
+              xhr.onload = function () {
+                if (xhr.status != 200) {
+                  alert(`Error ${xhr.status}: ${xhr.statusText}`);
+                } else {
+                  document.location.reload();
+                }
+              };
+          });
         });
-      });
+      }
+      
       $(document).ready( function () {
         var t = $('#table_id').DataTable();
         let timerId = setInterval(() => {
           updateTable(t);
+          updateStopBtn();
         }, 500);
         
     } );
