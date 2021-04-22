@@ -142,7 +142,7 @@
                     item.split(' | ')[9],
                     item.split(' | ')[8],
                     item.split(' | ')[7],
-                    '<button class="btn btn-danger btnStop" data-proc="'+item.split(' | ')[10]+'">STOP</button>'
+                    '<button class="btn btn-danger stopBtn" data-proc="'+item.split(' | ')[10]+'">STOP</button>'
                   ] ).draw( false );
                 }
                
@@ -160,7 +160,7 @@
                   xhr.response.split(' | ')[9],
                   xhr.response.split(' | ')[8],
                   xhr.response.split(' | ')[7],
-                  '<button class="btn btn-danger btnStop" data-proc="'+xhr.response.split(' | ')[10]+'">STOP</button>'
+                  '<button class="btn btn-danger stopBtn" data-proc="'+xhr.response.split(' | ')[10]+'">STOP</button>'
               ] ).draw( false );
             }
           }
