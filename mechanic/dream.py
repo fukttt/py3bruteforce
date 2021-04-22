@@ -127,7 +127,7 @@ class Brute(object):
             for line in r.text.split('\r\n'):
                 self.prlines.append(line)
             print("prcount "+str(len(self.prlines)))
-            time.sleep(10)
+            time.sleep(60)
     def work(self):
     #print(bcolors.WARNING + '[+] Start scanning : ' + str(self.lines[0]) + bcolors.ENDC)
         while self.running:

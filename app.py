@@ -1,5 +1,6 @@
 import os
 import importlib
+import jsons
 import sys
 import psutil
 from flask import Flask, request, render_template
@@ -59,7 +60,39 @@ def foo():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             return "Error while starting module " + data['module'] + " [" + str(e) + "] " + fname + " " + str(exc_tb.tb_lineno)
     if data['method'] == "get":
-        return str(bruteList[int(data['id'])].good) + "/" + str(bruteList[int(data['id'])].bad) + "/" + str(bruteList[int(data['id'])].error) + "/" + str(bruteList[int(data['id'])].projerror) + "/" + str(bruteList[int(data['id'])].captcha)
+        proj = ""
+        if len(bruteList) == 0:
+            return "No projs"
+        elif len(bruteList) == 1:
+            for it in bruteList:
+                proj += it.projectName + " | " + \
+                    str(it.good) + " | " + \
+                    str(it.bad) + " | " + \
+                    str(it.error) + " | " + \
+                    str(it.projerror) + " | " + \
+                    str(it.captcha) + " | " + \
+                    it.basename + " | " + \
+                    str(len(it.prlines)) + " | " + \
+                    str(it.thread_count) + " | " + \
+                    it.proxytype + " | " + \
+                    str(it.projid) + " | "
+            return '{}'.format(proj)
+        else :
+            for it in bruteList:
+                proj += it.projectName + " | " + \
+                    str(it.good) + " | " + \
+                    str(it.bad) + " | " + \
+                    str(it.error) + " | " + \
+                    str(it.projerror) + " | " + \
+                    str(it.captcha) + " | " + \
+                    it.basename + " | " + \
+                    str(len(it.prlines)) + " | " + \
+                    str(it.thread_count) + " | " + \
+                    it.proxytype + \
+                    str(it.projid) + " | " + "||"
+
+
+            return '{}'.format(proj)
     if data['method'] == "stop":
         for a in bruteList:
             if a.projid == int(data['id']):

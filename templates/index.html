@@ -10,6 +10,9 @@
 
     <!-- Bootstrap -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    
+
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -64,28 +67,31 @@
        
 
         <!-- Jumbotron -->
-        <div class="jumbotron">
-            <h1>Hello!</h1>
-            <p class="lead">This is a web-bruteforce app. This was made only for educational purposes! Be sure that you are running this stuff at your own risk!</p>
-            <p><a class="btn btn-lg btn-success" href="https://t.me/py3bruteforce" role="button">Get started today</a></p>
-        </div>
-
+        <h1>Hello!</h1>
+        <p class="lead">This is a web-bruteforce app. This was made only for educational purposes! Be sure that you are running this stuff at your own risk!</p>
+        
+        <table id="table_id" class="display">
+          <thead>
+              <tr>
+                  <th>Module</th>
+                  <th>Good</th>
+                  <th>Bad</th>
+                  <th>Error</th>
+                  <th>ProjError</th>
+                  <th>Captcha</th>
+                  <th>Source</th>
+                  <th>PrT</th>
+                  <th>Threads</th>
+                  <th>PrC</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              
+          </tbody>
+      </table>
         <!-- Example row of columns -->
-        <div class="row">
-          {% for module in aval %}
-            <div class="col-lg-4">
-              <h2>{{module.projectName}} [id:{{module.projid}}] [th:{{module.thread_count}}] [PR:{{module.prlines|length}}] [PRT:{{module.proxytype}}]</h2>
-              <p>Started at {{module.today.strftime("%m-%d-%H.%M.%S")}}</p>
-              <p class="text-success">Good : {{module.good}}</p>
-              <p class="text-danger">Bad : {{module.bad}}
-              <p class="text-warning">Error : {{module.error}}
-              <p class="text-muted">ProjectError : {{module.projerror}}
-              <p class="text-info">Captcha : {{module.captcha}}</p>
-              <p><a class="btn btn-danger stopBtn"  data-proc="{{module.projid}}">Stop</a></p>
-            </div>
-          {% endfor %}
-            
-        </div>
+
 
         <!-- Site footer -->
         <footer class="footer">
@@ -97,8 +103,73 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
 
     <script>
+      //infoBTN
+     
+      function updateTable(b){
+        let json = JSON.stringify({
+          method: "get"
+        });
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api');
+        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        xhr.send(json);
+        xhr.onload = function () {
+          if (xhr.status != 200) {
+            alert(`Error ${xhr.status}: ${xhr.statusText}`);
+          } else {
+            if (xhr.response != "No projs"){
+
+            
+            //var jser = JSON.parse(xhr.response);
+            if (xhr.response.includes("||")){
+              b.clear().draw();
+              ab = xhr.response.split('||');
+              ab.forEach((item) => {
+                console.log(item);
+                if (item != ""){
+                  b.row.add( [
+                    item.split(' | ')[0],
+                    '<p class="text-success">' + item.split(' | ')[1] + '</p>',
+                    item.split(' | ')[2],
+                    item.split(' | ')[3],
+                    item.split(' | ')[4],
+                    item.split(' | ')[5],
+                    item.split(' | ')[6],
+                    item.split(' | ')[9],
+                    item.split(' | ')[8],
+                    item.split(' | ')[7],
+                    '<button class="btn btn-danger btnStop" data-proc="'+item.split(' | ')[10]+'">STOP</button>'
+                  ] ).draw( false );
+                }
+               
+              });
+            }else {
+              b.clear().draw();
+              b.row.add( [
+                  xhr.response.split(' | ')[0],
+                  xhr.response.split(' | ')[1],
+                  xhr.response.split(' | ')[2],
+                  xhr.response.split(' | ')[3],
+                  xhr.response.split(' | ')[4],
+                  xhr.response.split(' | ')[5],
+                  xhr.response.split(' | ')[6],
+                  xhr.response.split(' | ')[9],
+                  xhr.response.split(' | ')[8],
+                  xhr.response.split(' | ')[7],
+                  '<button class="btn btn-danger btnStop" data-proc="'+xhr.response.split(' | ')[10]+'">STOP</button>'
+              ] ).draw( false );
+            }
+          }
+          }
+        };
+      }
+      
+      
+      //STOPBTN
       document.querySelectorAll('.stopBtn').forEach(element => {
         console.log(element);
         element.addEventListener("click", (event) => {
@@ -120,7 +191,13 @@
             };
         });
       });
-      
+      $(document).ready( function () {
+        var t = $('#table_id').DataTable();
+        let timerId = setInterval(() => {
+          updateTable(t);
+        }, 500);
+        
+    } );
     </script>
 </body>
 

@@ -87,6 +87,7 @@ class Brute(object):
         if "http" in self.proxylink:
             ptt = threading.Thread(target=self.updateProxyLink)
             ptt.start()
+            time.sleep(5)
         else:
             with open(self.proxyname, "r") as tags:
                 for line in tags:
@@ -102,14 +103,13 @@ class Brute(object):
             t.start()
 
     def updateProxyLink(self):
-        print("updating")
         while self.running:
             r = requests.get(self.proxylink, verify=False)
             
             self.prlines.clear()
             for line in r.text.split('\r\n'):
                 self.prlines.append(line)
-            time.sleep(10)
+            time.sleep(60)
     def work(self):
     #print(bcolors.WARNING + '[+] Start scanning : ' + str(self.lines[0]) + bcolors.ENDC)
         while self.running:
@@ -139,7 +139,7 @@ class Brute(object):
         self.lock.release()
 
     def getproxy(self):
-        return random.choice(self.prlines)
+        return str(random.choice(self.prlines))
 
     def writelog(self, file, log):
         dirr = self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file
