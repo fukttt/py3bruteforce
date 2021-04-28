@@ -11,12 +11,11 @@
     <!-- Bootstrap -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <style>
+      #myChart{
+        height: 300px;
+      }
+    </style>
 </head>
 
 <body>
@@ -63,26 +62,79 @@
 
        
 
-        <!-- Example row of columns -->
-        <div class="row">
-            <div class="col-lg-4">
-              <p>CPU usage : {{sys.cpu_percent()}}%</p>
-              <p>CPU freq : {{sys.cpu_freq()['current']}}</p>
-              <p>Memory usage : {{sys.virtual_memory()['percent']}}%</p>
-            </div>
-            
-        </div>
+      <div>
+        <canvas id="myChart"></canvas>
+      </div>
 
         <!-- Site footer -->
         <footer class="footer">
             <p>&copy; 2021 Py3Bruteforce, Inc.</p>
         </footer>
 
-    </div> <!-- /container -->
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      var data = {
+        labels: [],
+        datasets: [{
+          label: "CPU usage %",
+          fill: true,
+          lineTension: 0.1,
+          backgroundColor: "rgba(0,255,0,0.4)",
+          borderColor: "green", // The main line color
+          borderCapStyle: 'square',
+          pointBorderColor: "white",
+          pointBackgroundColor: "green",
+          pointBorderWidth: 1,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: "yellow",
+          pointHoverBorderColor: "green",
+          pointHoverBorderWidth: 2,
+          pointRadius: 4,
+          pointHitRadius: 10,
+          data: [],
+          spanGaps: true,
+        }]
+      };
+      const config = {
+        type: 'line',
+        data: data,
+        options: {}
+      };
+      var chart = new Chart(
+        document.getElementById('myChart'),
+        config
+      );
+      
+      function addData(chart, label, data) {
+          chart.data.labels.push(label);
+          chart.data.datasets.forEach((dataset) => {
+              dataset.data.push(data);
+          });
+          chart.update();
+      }
+
+      let timerId = setInterval(() => {
+        updateCPU();
+      }, 2000);
+
+      function updateCPU(){
+        let json = JSON.stringify({
+          method: "getcpu"
+        });
+
+        let xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api');
+        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        xhr.send(json);
+        xhr.onload = function () {
+            addData(chart, xhr.response.split('|')[1], xhr.response.split('|')[0])
+          
+        }
+      }
+    </script>
 </body>
 
 </html>

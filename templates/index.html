@@ -67,8 +67,8 @@
        
 
         <!-- Jumbotron -->
-        <h1>Hello!</h1>
-        <p class="lead">This is a web-bruteforce app. This was made only for educational purposes! Be sure that you are running this stuff at your own risk!</p>
+        <h1>Dashboard</h1>
+        
         
         <table id="table_id" class="display">
           <thead>
@@ -164,6 +164,8 @@
               ] ).draw( false );
               updateStopBtn();
             }
+          }else {
+            b.clear().draw();
           }
           }
         };
@@ -195,7 +197,10 @@
       }
       
       $(document).ready( function () {
-        var t = $('#table_id').DataTable();
+        var t = $('#table_id').DataTable({
+          "searching": false,
+          paging: false
+        });
         let timerId = setInterval(() => {
           updateTable(t);
           

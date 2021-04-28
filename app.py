@@ -2,6 +2,7 @@ import os
 import importlib
 import jsons
 import sys
+import datetime
 import psutil
 from flask import Flask, request, render_template
 
@@ -29,9 +30,7 @@ def mod(module):
 def sysinfp():
     a = psutil
     return render_template("sysinfo.html",
-        sys = a,
-        modules = getModules(),
-        files = getText())
+        modules = getModules())
 
 @app.route('/wiki')
 def wiki():
@@ -45,6 +44,7 @@ def foo():
     if data['method'] == "start":
         try:
             b = importlib.import_module('mechanic.' + data['module']).Brute()
+            bruteList.append(b)
             b.basename = data['base']
             b.proxyname = data['proxy']
             b.proxytype = data['proxytype']
@@ -53,54 +53,63 @@ def foo():
             b.thread_count = int(data['threads'])
             b.timeout = (int(data['timeout']),int(data['timeout']))
             b.mult()
-            bruteList.append(b)
             return "Started succesfully"
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             return "Error while starting module " + data['module'] + " [" + str(e) + "] " + fname + " " + str(exc_tb.tb_lineno)
     if data['method'] == "get":
-        proj = ""
-        if len(bruteList) == 0:
-            return "No projs"
-        elif len(bruteList) == 1:
-            for it in bruteList:
-                proj += it.projectName + " | " + \
-                    str(it.good) + " | " + \
-                    str(it.bad) + " | " + \
-                    str(it.error) + " | " + \
-                    str(it.projerror) + " | " + \
-                    str(it.captcha) + " | " + \
-                    it.basename + " | " + \
-                    str(len(it.prlines)) + " | " + \
-                    str(it.thread_count) + " | " + \
-                    it.proxytype + " | " + \
-                    str(it.projid) + " | "
-            return '{}'.format(proj)
-        else :
-            for it in bruteList:
-                proj += it.projectName + " | " + \
-                    str(it.good) + " | " + \
-                    str(it.bad) + " | " + \
-                    str(it.error) + " | " + \
-                    str(it.projerror) + " | " + \
-                    str(it.captcha) + " | " + \
-                    it.basename + " | " + \
-                    str(len(it.prlines)) + " | " + \
-                    str(it.thread_count) + " | " + \
-                    it.proxytype + " | " + \
-                    str(it.projid) + "||"
+        try:
+            
+            proj = ""
+            if len(bruteList) == 0:
+                return "No projs"
+            elif len(bruteList) == 1:
+                for it in bruteList:
+                    proj += it.projectName + "#" + str(it.projid) + " | " + \
+                        str(it.good) + " | " + \
+                        str(it.bad) + " | " + \
+                        str(it.error) + " | " + \
+                        str(it.projerror) + " | " + \
+                        str(it.captcha) + " | " + \
+                        it.basename + " | " + \
+                        str(len(it.prlines)) + " | " + \
+                        str(it.thread_count) + " | " + \
+                        it.proxytype + " | " + \
+                        str(it.projid) + " | "
+                return '{}'.format(proj)
+            else :
+                for it in bruteList:
+                    proj += it.projectName + "#" + str(it.projid) +  " | " + \
+                        str(it.good) + " | " + \
+                        str(it.bad) + " | " + \
+                        str(it.error) + " | " + \
+                        str(it.projerror) + " | " + \
+                        str(it.captcha) + " | " + \
+                        it.basename + " | " + \
+                        str(len(it.prlines)) + " | " + \
+                        str(it.thread_count) + " | " + \
+                        it.proxytype + " | " + \
+                        str(it.projid) + "||"
+                return '{}'.format(proj)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            return exc_type, fname, exc_tb.tb_lineno
 
-
-            return '{}'.format(proj)
+    if data['method'] == "getcpu":
+        
+        stat = str(psutil.cpu_percent(interval=0)) + "|" + datetime.datetime.today().strftime("%H.%M.%S")
+        return '{}'.format(stat)
     if data['method'] == "stop":
         for a in bruteList:
             if a.projid == int(data['id']):
                 a.running = False
                 bruteList.remove(a)
                 return "Stopped succesfully!"
-            else:
-                return "Can't stop! Id didn't found!"
+                break
+            
+        return "Project no found"
 
 
 

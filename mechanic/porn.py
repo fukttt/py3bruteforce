@@ -30,7 +30,7 @@ class Brute(object):
         self.proxyname = "proxy.txt"
         self.captcha = 0
         self.running = True
-        self.timeout = 15
+        self.timeout = (15, 15)
         self.thread_count = 150
         self.today = datetime.datetime.today()
         self.lines = []
@@ -39,12 +39,14 @@ class Brute(object):
 
     def check(self, login, password):
         try:
-            
             pr = self.getproxy()
-            if self.proxytype != "burp":
-                proxies = {'https': self.proxytype +  "://" + pr, 'http': self.proxytype +  "://" + pr}
-            else:
+            if self.proxytype == "no":
+                proxies = None
+           
+            elif self.proxytype == "burp":
                 proxies = {'https': '127.0.0.1:8080', 'http': '127.0.0.1:8080'}
+            else:
+                proxies = {'https': self.proxytype +  "://" + pr, 'http': self.proxytype +  "://" + pr}
             
             headers = {'User-Agent' : 'Mozilla/5.0 (Linux; Android 6.0.1; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Mobile Safari/537.36'}
             s = requests.session()
@@ -90,6 +92,7 @@ class Brute(object):
         self.count_list = len(self.lines) 
         if "http" in self.proxylink:
             ptt = threading.Thread(target=self.updateProxyLink)
+            ptt.daemon = True
             ptt.start()
             time.sleep(5)
         else:
@@ -104,6 +107,7 @@ class Brute(object):
     def startth(self):
         for i in range(self.thread_count):
             t = threading.Thread(target=self.work)
+            t.daemon = True
             t.start()
 
     def updateProxyLink(self):
@@ -121,20 +125,23 @@ class Brute(object):
                 self.stop()
                 break
 
-            self.lock.acquire()
+            
             if self.projid == 0:
                 print( str(len(self.lines)) + "/" + str(self.count_list) + " (" + str(len(self.lines)  // (self.count_list/ 100)) + "%) " +bcolors.OKGREEN + str(self.good) + bcolors.ENDC   + "/" + bcolors.FAIL + str(self.bad) + bcolors.ENDC + "/"  + bcolors.WARNING+ str(self.error) + bcolors.ENDC + "/"  + bcolors.UNDERLINE+ str(self.projerror) + bcolors.ENDC + "/"  + bcolors.BOLD+ str(self.captcha) + bcolors.ENDC + " [" + str(threading.active_count()) + "]", end='\r')
-            sys.stdout.flush()
+                sys.stdout.flush()
+            
+            self.lock.acquire()
             trl = self.lines[0]
             self.lines.pop(0)
             self.lock.release()
 
             if ":" in trl:
                 self.check(trl.split(':')[0], trl.split(':')[1])
-            if ";" in trl:
+            elif ";" in trl:
                 self.check(trl.split(';')[0], trl.split(';')[1])
-            
-            time.sleep(1)
+            else :
+                pass
+             
         self.exit_thread()
 
     def exit_thread(self):
@@ -146,7 +153,7 @@ class Brute(object):
         return str(random.choice(self.prlines))
 
     def writelog(self, file, log):
-        dirr = self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file
+        dirr = self.projectName + "/" + str(self.today.strftime("%H.%M.%S")) + "/" +file
         os.makedirs(os.path.dirname(dirr), exist_ok=True)
         with open(dirr, 'a') as the_file:
             the_file.write(log + '\n')
