@@ -7,6 +7,8 @@ import psutil
 from flask import Flask, request, render_template
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'sources'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 bruteList = []
 
 @app.route('/')
@@ -37,7 +39,17 @@ def wiki():
     return render_template("wiki.html",
         modules = getModules(),
         files = getText())
-
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == "POST":
+        files = request.files.getlist("file")
+        for file in files:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+    return "Uploaded succesfully<script>document.location.href='/'</script>"
+@app.route('/uploadfile', methods=['GET'])
+def uploadfile():
+    return render_template("uploadfile.html",
+        modules = getModules())
 @app.route('/api', methods=['POST']) 
 def foo():
     data = request.json

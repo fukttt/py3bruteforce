@@ -11,11 +11,12 @@
     <!-- Bootstrap -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
 
-    <style>
-      #myChart{
-        height: 300px;
-      }
-    </style>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
 </head>
 
 <body>
@@ -35,10 +36,10 @@
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-              <li ><a href="/">Dashboard</a></li>
+              <li><a href="/">Dashboard</a></li>
               <li><a href="/wiki">Wiki</a></li>
-              <li><a href="/uploadfile">Upload files</a></li>
-              <li class="active"><a href="/sysinfo">System info</a></li>
+              <li class="active"><a href="/uploadfile">Upload files</a></li>
+              <li><a href="/sysinfo">System info</a></li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Available modules <span class="caret"></span></a>
                 <ul class="dropdown-menu">
@@ -63,79 +64,35 @@
 
        
 
-      <div>
-        <canvas id="myChart"></canvas>
-      </div>
+        <!-- Jumbotron -->
+        <div class="jumbotron">
+            <h1>Hello!</h1>
+            <p class="lead">Here u can upload sources to yours server folder!</p>
+            <div class="file-upload-wrapper">
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <input type="file" id="input-file-now-custom-2" class="file-upload"
+                    data-height="500" name="file" multiple="multiple"/><br>
+                    <button class="btn btn-info" type="submit">Upload</button>
+                </form>
+                
+             </div>
+            
+        </div>
+
+        
 
         <!-- Site footer -->
         <footer class="footer">
             <p>&copy; 2021 Py3Bruteforce, Inc.</p>
         </footer>
 
-    </div>
+    </div> <!-- /container -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      var data = {
-        labels: [],
-        datasets: [{
-          label: "CPU usage %",
-          fill: true,
-          lineTension: 0.1,
-          backgroundColor: "rgba(0,255,0,0.4)",
-          borderColor: "green", // The main line color
-          borderCapStyle: 'square',
-          pointBorderColor: "white",
-          pointBackgroundColor: "green",
-          pointBorderWidth: 1,
-          pointHoverRadius: 8,
-          pointHoverBackgroundColor: "yellow",
-          pointHoverBorderColor: "green",
-          pointHoverBorderWidth: 2,
-          pointRadius: 4,
-          pointHitRadius: 10,
-          data: [],
-          spanGaps: true,
-        }]
-      };
-      const config = {
-        type: 'line',
-        data: data,
-        options: {}
-      };
-      var chart = new Chart(
-        document.getElementById('myChart'),
-        config
-      );
-      
-      function addData(chart, label, data) {
-          chart.data.labels.push(label);
-          chart.data.datasets.forEach((dataset) => {
-              dataset.data.push(data);
-          });
-          chart.update();
-      }
 
-      let timerId = setInterval(() => {
-        updateCPU();
-      }, 2000);
-
-      function updateCPU(){
-        let json = JSON.stringify({
-          method: "getcpu"
-        });
-
-        let xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api');
-        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-        xhr.send(json);
-        xhr.onload = function () {
-            addData(chart, xhr.response.split('|')[1], xhr.response.split('|')[0])
-          
-        }
-      }
-    </script>
+    <
 </body>
 
 </html>
