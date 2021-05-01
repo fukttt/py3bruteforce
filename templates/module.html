@@ -1,190 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "main.html" %}
+{% block content %}
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-  <title>{{mod.projectName}}</title>
-  <!-- Bootstrap -->
-  <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
+<style>
+  .load {
+    border: 1px solid #ECF0F1;
+    padding: 5px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) rotate(135deg);
+    /*change these sizes to fit into your project*/
+    width: 50px;
+    height: 50px;
 
-  <style>
+  }
 
-.load{
-  border: 1px solid #ECF0F1;
-  padding: 5px;
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform-origin: center center;
-  transform:translate(-50%, -50%) rotate(135deg);
-  /*change these sizes to fit into your project*/
-  width:50px;
-  height:50px;
-  
-}
-.load hr{
-  border:0;
-  margin:0;
-  width:40%;
-  height:40%;
-  position:absolute;
-  border-radius:50%;
-  animation:spin 2s ease infinite;
-}
+  .load hr {
+    border: 0;
+    margin: 0;
+    width: 40%;
+    height: 40%;
+    position: absolute;
+    border-radius: 50%;
+    animation: spin 2s ease infinite;
+  }
 
-.load :first-child{background:#19A68C;animation-delay:-1.5s}
-.load :nth-child(2){background:#F63D3A;animation-delay:-1s}
-.load :nth-child(3){background:#FDA543;animation-delay:-0.5s}
-.load :last-child{background:#193B48}
+  .load :first-child {
+    background: #19A68C;
+    animation-delay: -1.5s
+  }
 
-@keyframes spin{
-  0%,100%{transform:translateX(200%)}
-  25%{transform:translateY(200%)}
-  50%{transform:translateX(0)}
-  75%{transform:translateY(0)}
-}
-  </style>
-</head>
+  .load :nth-child(2) {
+    background: #F63D3A;
+    animation-delay: -1s
+  }
 
-<body>
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-          data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/">Py3Bruteforce</a>
-      </div>
+  .load :nth-child(3) {
+    background: #FDA543;
+    animation-delay: -0.5s
+  }
 
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
-          <li><a href="/">Dashboard</a></li>
-          <li><a href="/wiki">Wiki</a></li>
-          <li><a href="/uploadfile">Upload files</a></li>
-          <li ><a href="/sysinfo">System info</a></li>
-          <li class="dropdown active">
-            <a href="#" class="dropdown-toggle " data-toggle="dropdown" role="button" aria-haspopup="true"
-              aria-expanded="false">Available modules <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              {% for module in modules %}
-              <li><a href="/module/{{module}}">{{module}}</a></li>
-              {% endfor %}
-              <li role="separator" class="divider"></li>
-              <li><a href="https://t.me/Pirate2110">Send request for new module</a></li>
-            </ul>
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="https://github.com/fukttt/py3bruteforce">Ver. 1.4</a></li>
+  .load :last-child {
+    background: #193B48
+  }
 
-        </ul>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
-  </nav>
+  @keyframes spin {
 
-  <div class="container">
+    0%,
+    100% {
+      transform: translateX(200%)
+    }
+
+    25% {
+      transform: translateY(200%)
+    }
+
+    50% {
+      transform: translateX(0)
+    }
+
+    75% {
+      transform: translateY(0)
+    }
+  }
+</style>
 
 
-
-    <!-- Jumbotron -->
-    <div class="row">
-      <div class="col-md-6">
-        <h1>{{mod.projectFullName}} </h1>
-        <p class="lead">{{mod.description}}</p>
-        <label for="baseName">Base</label>
-        <select class="form-control" id="baseName">
-          {% for file in files %}
-          <option>{{file}}</option>
-          {% endfor %}
-        </select>
-        <label for="proxyName">Proxy</label>
-        <select class="form-control" id="proxyName">
-          {% for file in files %}
-          <option>{{file}}</option>
-          {% endfor %}
-        </select>
-        <label for="threadsCount">Threads</label>
-        <input type="text" class="form-control" value="150" id="threadsCount">
-        <label for="tprl">Proxy Link</label>
-        <input type="text" class="form-control" placeholder="https://api.proxy/get" id="prl">
-        <label for="proxyType">ProxyType</label>
-        <select class="form-control" id="proxyType">
-          <option>https</option>
-          <option>socks4</option>
-          <option>socks5</option>
-          <option>burp</option>
-          <option>no</option>
-        </select>
-        <label for="timeOut">Timeout</label>
-        <input type="text" class="form-control" value=15 id="timeOut">
-      </div>
+<div class="row">
+  <div class="col-md-6">
+    <p class="lead">{{mod.description}}</p>
+    <label for="baseName">Base</label>
+    <select class="form-control" id="baseName">
+      {% for file in files %}
+      <option>{{file}}</option>
+      {% endfor %}
+    </select>
+    <label for="proxyName">Proxy</label>
+    <select class="form-control" id="proxyName">
+      {% for file in files %}
+      <option>{{file}}</option>
+      {% endfor %}
+    </select>
+    <label for="threadsCount">Threads</label>
+    <input type="text" class="form-control" value="150" id="threadsCount">
+    <label for="tprl">Proxy Link</label>
+    <input type="text" class="form-control" placeholder="https://api.proxy/get" id="prl">
+    <label for="proxyType">ProxyType</label>
+    <select class="form-control" id="proxyType">
+      <option>https</option>
+      <option>socks4</option>
+      <option>socks5</option>
+      <option>burp</option>
+      <option>no</option>
+    </select>
+    <label for="timeOut">Timeout</label>
+    <input type="text" class="form-control" value=15 id="timeOut">
+  </div>
 
 
-      <div class="col-md-6">
-        <h1>Methods:</h1>
-        <button class="btn btn-success" id="startBtn">Start</button>
-        <button class="btn btn-primary" id="debugBtn">Debug</button>
-      </div>
-    </div>
+  <div class="col-md-6">
+    <h1>Methods:</h1>
+    <button class="btn btn-success" id="startBtn">Start</button>
+    <button class="btn btn-primary" id="debugBtn">Debug</button>
+  </div>
+</div>
 
 
-    <div class="load" style="display: none;">
-      <hr/><hr/><hr/><hr/>
-    </div>
+<div class="load" style="display: none;">
+  <hr />
+  <hr />
+  <hr />
+  <hr />
+</div>
 
-
-    <!-- Site footer -->
-    <footer class="footer">
-      <p>&copy; 2021 Py3Bruteforce, Inc.</p>
-    </footer>
-
-  </div> <!-- /container -->
-  <script>
-    document.getElementById('startBtn').addEventListener("click", () => {
-      document.querySelector('.load').style.display = "block";
-      let json = JSON.stringify({
-        method: "start",
-        module: "{{module}}",
-        base: 'sources/'+document.getElementById('baseName').value,
-        proxy: 'sources/'+document.getElementById('proxyName').value,
-        proxytype: document.getElementById('proxyType').value,
-        threads : document.getElementById('threadsCount').value,
-        timeout : document.getElementById('timeOut').value,
-        proxylink : document.getElementById('prl').value,
-      });
-
-      let xhr = new XMLHttpRequest();
-      xhr.open('POST', '/api');
-      xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-      xhr.send(json);
-      xhr.onload = function () {
-        if (xhr.status != 200) {
-          alert(`Error ${xhr.status}: ${xhr.statusText}`);
-        } else {
-          document.location = "/";
-        }
-      };
-    }, false);
-    document.getElementById('debugBtn').addEventListener("click", () => {
-      alert('Will be soon');
-    }, false);
-
-  
-
-  </script>
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
-</body>
-
-</html>
+<script>
+  var modul = "{{module}}";
+</script>
+{% endblock %}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{title}}</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='fav.png')}}" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <style>
+        *{
+            font-family: 'Lato', sans-serif;
+        }
+        .logo{
+            max-width: 120px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='cover.png')}}" alt="logo" class="logo"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="{% if request.endpoint=='index' %}active{%endif %}"><a href="/">Dashboard</a></li>
+                    <li class="{% if request.endpoint=='wiki' %}active{%endif %}"><a href="/wiki">Wiki</a></li>
+                    <li class="{% if request.endpoint=='uploadfile' %}active{%endif %}"><a href="/uploadfile">Upload
+                            files</a></li>
+                    <li class="{% if request.endpoint=='sysinfp' %}active{%endif %}"><a href="/sysinfo">System info</a>
+                    </li>
+                    <li class="dropdown {% if request.endpoint=='mod' %}active{%endif %}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Available modules <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            {% for module in modules %}
+                            <li><a href="/module/{{module}}">{{module}}</a></li>
+
+                            {% endfor %}
+                            <li role="separator" class="divider"></li>
+                            <li><a href="https://t.me/Pirate2110">Send request for new module</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="https://github.com/fukttt/py3bruteforce">Ver. 1.6</a></li>
+
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    <div class="container">
+
+ 
+        <h1>{{title}}</h1>
+
+        {% block content %}{% endblock %}
+
+
+
+
+        <footer class="footer">
+            <p>&copy; 2021 Py3Bruteforce, Inc.</p>
+        </footer>
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script type="text/javascript" language="javascript" src="https://nightly.datatables.net/responsive/js/dataTables.responsive.min.js">
+    </script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% if request.endpoint=='index' %}<script src="{{ url_for('static', filename='js/index.js')}}"></script>{%endif %}
+    {% if request.endpoint=='sysinfp' %}<script src="{{ url_for('static', filename='js/sysinfo.js')}}"></script>{%endif %}
+    {% if request.endpoint=='mod' %}<script src="{{ url_for('static', filename='js/module.js')}}"></script>{%endif %}
+
+</body>
+
+</html>

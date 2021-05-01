@@ -4,17 +4,15 @@ import jsons
 import sys
 import datetime
 import psutil
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'sources'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 bruteList = []
 
 @app.route('/')
 def index():
     return render_template("index.html",
-        title = 'Web-Bruteforce',
+        title = 'Dashboard',
         modules = getModules(),
         aval = bruteList)
 
@@ -25,31 +23,46 @@ def mod(module):
         mod = b,
         module = module,
         modules = getModules(),
-        files = getText())
+        files = getText(), 
+        title=b.projectFullName)
 
 
 @app.route('/sysinfo')
 def sysinfp():
     a = psutil
     return render_template("sysinfo.html",
-        modules = getModules())
+        modules = getModules(),
+        title = "System monitoring")
 
 @app.route('/wiki')
 def wiki():
     return render_template("wiki.html",
         modules = getModules(),
-        files = getText())
+        files = getText(),
+        title="Wiki")
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == "POST":
         files = request.files.getlist("file")
         for file in files:
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-    return "Uploaded succesfully<script>document.location.href='/'</script>"
+            if file.filename != '' and ".txt" in file.filename:
+                file.save(os.path.join('sources', file.filename))
+    return redirect(url_for('index'))
+
+@app.route('/uploadmodule', methods=['GET', 'POST'])
+def upload_module():
+    if request.method == "POST":
+        files = request.files.getlist("file")
+        for file in files:
+            if file.filename != '' and ".py" in file.filename:
+                file.save(os.path.join('mechanic', file.filename))
+    return redirect(url_for('index'))
+
 @app.route('/uploadfile', methods=['GET'])
 def uploadfile():
     return render_template("uploadfile.html",
-        modules = getModules())
+        modules = getModules(),
+        title="Upload file")
 @app.route('/api', methods=['POST']) 
 def foo():
     data = request.json
