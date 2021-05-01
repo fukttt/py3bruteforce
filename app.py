@@ -8,6 +8,7 @@ from flask import Flask, request, render_template, redirect, url_for
 
 app = Flask(__name__)
 bruteList = []
+hiddenList = []
 
 @app.route('/')
 def index():
@@ -29,10 +30,15 @@ def mod(module):
 
 @app.route('/sysinfo')
 def sysinfp():
-    a = psutil
     return render_template("sysinfo.html",
         modules = getModules(),
         title = "System monitoring")
+
+@app.route('/logs')
+def logs():
+    return render_template("logs.html",
+        log = getLogs(),
+        title = "Watch logs")
 
 @app.route('/wiki')
 def wiki():
@@ -121,7 +127,8 @@ def foo():
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             return exc_type, fname, exc_tb.tb_lineno
-
+    if data['method'] == "getlog":
+        return '{}'.format(getLog(data["dir"]))
     if data['method'] == "getcpu":
         
         stat = str(psutil.cpu_percent(interval=0)) + "|" + datetime.datetime.today().strftime("%H.%M.%S")
@@ -137,6 +144,13 @@ def foo():
         return "Project no found"
 
 
+def hidden(path):
+
+    for i in hiddenList:
+        if i != '' and i in path:
+            return True
+    
+    return False
 
 
 def getModules():
@@ -152,5 +166,19 @@ def getText():
         if ".txt" in filename:
             a.append(filename)
     return a
+def getLogs():
+    dirs = []
+    directory = 'logs/'
+    for filename in os.listdir(directory):
+        a = os.path.join(directory, filename)
+        for filename in os.listdir(os.path.join(directory, filename)):
+            b = a + "/" + filename
+            for filename in os.listdir(os.path.join(a, filename)):
+                dirs.append( b + "/" + filename)
+    return dirs
+
+def getLog(fr):
+    f = open(fr, "r")
+    return f.read()
 
 app.run(host="0.0.0.0", debug = True)

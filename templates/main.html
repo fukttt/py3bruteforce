@@ -43,8 +43,8 @@
                 <ul class="nav navbar-nav">
                     <li class="{% if request.endpoint=='index' %}active{%endif %}"><a href="/">Dashboard</a></li>
                     <li class="{% if request.endpoint=='wiki' %}active{%endif %}"><a href="/wiki">Wiki</a></li>
-                    <li class="{% if request.endpoint=='uploadfile' %}active{%endif %}"><a href="/uploadfile">Upload
-                            files</a></li>
+                    <li class="{% if request.endpoint=='logs' %}active{%endif %}"><a href="/logs">Logs</a></li>
+                    <li class="{% if request.endpoint=='uploadfile' %}active{%endif %}"><a href="/uploadfile">Upload files</a></li>
                     <li class="{% if request.endpoint=='sysinfp' %}active{%endif %}"><a href="/sysinfo">System info</a>
                     </li>
                     <li class="dropdown {% if request.endpoint=='mod' %}active{%endif %}">
@@ -85,13 +85,12 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
-    <script type="text/javascript" language="javascript" src="https://nightly.datatables.net/responsive/js/dataTables.responsive.min.js">
-    </script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {% if request.endpoint=='index' %}<script src="{{ url_for('static', filename='js/index.js')}}"></script>{%endif %}
     {% if request.endpoint=='sysinfp' %}<script src="{{ url_for('static', filename='js/sysinfo.js')}}"></script>{%endif %}
     {% if request.endpoint=='mod' %}<script src="{{ url_for('static', filename='js/module.js')}}"></script>{%endif %}
+    {% if request.endpoint=='logs' %}<script src="{{ url_for('static', filename='js/logs.js')}}"></script>{%endif %}
 
 </body>
 

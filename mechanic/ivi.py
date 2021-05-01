@@ -136,7 +136,7 @@ class Brute(object):
             if ";" in trl:
                 self.check(trl.split(';')[0], trl.split(';')[1])
             
-            time.sleep(1)
+            time.sleep(0.1)
         self.exit_thread()
 
     def exit_thread(self):
@@ -148,7 +148,7 @@ class Brute(object):
         return str(random.choice(self.prlines))
 
     def writelog(self, file, log):
-        dirr = self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file
+        dirr = "logs/" + self.projectName + "/" + str(self.today.strftime("%m-%d-%H.%M.%S")) + "/" +file
         os.makedirs(os.path.dirname(dirr), exist_ok=True)
         with open(dirr, 'a') as the_file:
             the_file.write(log + '\n')
