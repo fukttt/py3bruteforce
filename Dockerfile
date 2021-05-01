@@ -3,11 +3,10 @@ RUN apt-get update
 RUN apt-get upgrade
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
-RUN apt-get install -y git
 
-RUN git clone https://github.com/fukttt/py3bruteforce.git
+COPY . /app
  
-WORKDIR /py3bruteforce
+WORKDIR /app
 RUN pip3 install -r requirements.txt
 
 EXPOSE 5000
