@@ -97,12 +97,12 @@ def foo():
                 return "No projs"
             elif len(bruteList) == 1:
                 for it in bruteList:
-                    proj += it.projectName + "#" + str(it.projid) + " | " + \
-                        str(it.good) + " | " + \
-                        str(it.bad) + " | " + \
-                        str(it.error) + " | " + \
-                        str(it.projerror) + " | " + \
-                        str(it.captcha) + " | " + \
+                    proj += it.projectName + " (" + str(it.q.qsize()) + ") | " + \
+                        str(it.good.value) + " | " + \
+                        str(it.bad.value) + " | " + \
+                        str(it.error.value) + " | " + \
+                        str(it.projerror.value) + " | " + \
+                        str(it.captcha.value) + " | " + \
                         it.basename + " | " + \
                         str(len(it.prlines)) + " | " + \
                         str(it.thread_count) + " | " + \
@@ -111,12 +111,12 @@ def foo():
                 return '{}'.format(proj)
             else :
                 for it in bruteList:
-                    proj += it.projectName + "#" + str(it.projid) +  " | " + \
-                        str(it.good) + " | " + \
-                        str(it.bad) + " | " + \
-                        str(it.error) + " | " + \
-                        str(it.projerror) + " | " + \
-                        str(it.captcha) + " | " + \
+                    proj += it.projectName + " (" + str(it.q.qsize()) +  ") | " + \
+                        str(it.good.value) + " | " + \
+                        str(it.bad.value) + " | " + \
+                        str(it.error.value) + " | " + \
+                        str(it.projerror.value) + " | " + \
+                        str(it.captcha.value) + " | " + \
                         it.basename + " | " + \
                         str(len(it.prlines)) + " | " + \
                         str(it.thread_count) + " | " + \
@@ -136,7 +136,7 @@ def foo():
     if data['method'] == "stop":
         for a in bruteList:
             if a.projid == int(data['id']):
-                a.running = False
+                a.running.value = False
                 bruteList.remove(a)
                 return "Stopped succesfully!"
                 break
@@ -180,5 +180,9 @@ def getLogs():
 def getLog(fr):
     f = open(fr, "r")
     return f.read()
-
-app.run(host="0.0.0.0", debug = True)
+if __name__=="__main__":
+    try:
+        app.run("0.0.0.0",5000,True)
+    except (KeyboardInterrupt, SystemExit):
+        for it in bruteList:
+            it.running = False
