@@ -74,7 +74,7 @@ def foo():
     data = request.json
     if data['method'] == "start":
         try:
-            b = importlib.import_module('mechanic.' + data['module']).Brute()
+            b = importlib.import_module('utils.Core').Core(data['module'])
             bruteList.append(b)
             b.basename = data['base']
             b.proxyname = data['proxy']
@@ -83,12 +83,12 @@ def foo():
             b.projid = len(bruteList) + 1
             b.thread_count = int(data['threads'])
             b.timeout = (int(data['timeout']),int(data['timeout']))
-            b.mult()
+            b.mainPoint()
             return "Started succesfully"
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            return "Error while starting module " + data['module'] + " [" + str(e) + "] " + fname + " " + str(exc_tb.tb_lineno)
+            print("Error while starting module " + data['module'] + " [" + str(e) + "] " + fname + " " + str(exc_tb.tb_lineno))
     if data['method'] == "get":
         try:
             
@@ -97,12 +97,12 @@ def foo():
                 return "No projs"
             elif len(bruteList) == 1:
                 for it in bruteList:
-                    proj += it.projectName + " (" + str(it.q.qsize()) + ") | " + \
-                        str(it.good.value) + " | " + \
-                        str(it.bad.value) + " | " + \
-                        str(it.error.value) + " | " + \
-                        str(it.projerror.value) + " | " + \
-                        str(it.captcha.value) + " | " + \
+                    proj += it.projectName + " (" + str(it.lines.qsize()) + ") | " + \
+                        str(it.good) + " | " + \
+                        str(it.bad) + " | " + \
+                        str(it.error) + " | " + \
+                        str(it.projerror) + " | " + \
+                        str(it.captcha) + " | " + \
                         it.basename + " | " + \
                         str(len(it.prlines)) + " | " + \
                         str(it.thread_count) + " | " + \
@@ -111,12 +111,12 @@ def foo():
                 return '{}'.format(proj)
             else :
                 for it in bruteList:
-                    proj += it.projectName + " (" + str(it.q.qsize()) +  ") | " + \
-                        str(it.good.value) + " | " + \
-                        str(it.bad.value) + " | " + \
-                        str(it.error.value) + " | " + \
-                        str(it.projerror.value) + " | " + \
-                        str(it.captcha.value) + " | " + \
+                    proj += it.projectName + " (" + str(it.lines.qsize()) +  ") | " + \
+                        str(it.good) + " | " + \
+                        str(it.bad) + " | " + \
+                        str(it.error) + " | " + \
+                        str(it.projerror) + " | " + \
+                        str(it.captcha) + " | " + \
                         it.basename + " | " + \
                         str(len(it.prlines)) + " | " + \
                         str(it.thread_count) + " | " + \
@@ -136,7 +136,7 @@ def foo():
     if data['method'] == "stop":
         for a in bruteList:
             if a.projid == int(data['id']):
-                a.running.value = False
+                a.stop()
                 bruteList.remove(a)
                 return "Stopped succesfully!"
                 break
