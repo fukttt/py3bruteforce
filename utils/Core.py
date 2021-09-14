@@ -3,7 +3,7 @@ import importlib
 import requests
 import threading
 import random
-from datetime import time
+import time
 from queue import Queue
 
 class Core(object):
@@ -73,13 +73,14 @@ class BruteThread(threading.Thread):
         threading.Thread.__init__(self)
         self.core = core
     def run(self):
+        mod = importlib.import_module('mechanic.' + self.core.modulename).Brute()
         while self.core.running:
             if (self.core.lines.empty()):
                 self.stop()
                 break
             trl = self.core.lines.get()
             try:
-                mod = importlib.import_module('mechanic.' + self.core.modulename).Brute()
+                
                 #Trash
                 self.core.projectName = mod.projectName
                 self.core.projectFullName = mod.projectFullName
@@ -111,7 +112,7 @@ class BruteThread(threading.Thread):
                 elif result == "captcha":
                     self.core.captcha += 1
                     self.core.lines.put(login + ":" + passw)
-
+                time.sleep(0.2)
             except Exception as e:
                 print (e)
                 self.core.error += 1
