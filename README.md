@@ -15,6 +15,8 @@ Just open http://localhost:5000
 
 ## Docs
 Before u start type in console `python3 brute.py -h`
+
+[Blog-post](https://fukttt.github.io/2022/02/14/py3bruteforce-new-way-for-bruteforcing-with-python.html)
 ## About
 This was made only for educational, not for hacking !
 Use it at your own risk!
